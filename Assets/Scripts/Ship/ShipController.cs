@@ -22,9 +22,12 @@ public class ShipController : MonoBehaviour
     ShipFuel shipFuel;
     ShipHealth shipHealth;
 
+    CheckpointManager cm;
+
     // Start is called before the first frame update
     void Start()
     {
+        cm = CheckpointManager.instance;
         rb = GetComponent<Rigidbody2D>();
         shipFuel = GetComponent<ShipFuel>();
         shipHealth = GetComponent<ShipHealth>();
@@ -35,8 +38,15 @@ public class ShipController : MonoBehaviour
     {
         if(Input.GetButtonDown("Reset"))
         {
+            //add post reset countdown before allowing play
+
             rb.Sleep();
-            transform.position = Vector3.up * -4.85f;
+
+            if (cm.lastCheckpoint != null)
+                transform.position = cm.lastCheckpoint.transform.position;
+            else
+                transform.position = Vector3.up * -4.85f;
+
             transform.rotation = Quaternion.identity;
             shipFuel.AdjustFuel(90.0f);
             shipHealth.AdjustDamage(-100.0f);
