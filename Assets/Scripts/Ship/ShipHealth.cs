@@ -61,7 +61,7 @@ public class ShipHealth : MonoBehaviour
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if(velocity > frictionVelocityThreshold && collision.otherCollider == body)
+        if(velocity > frictionVelocityThreshold && collision.otherCollider == body && !collision.collider.usedByEffector)
         {
             AdjustDamage(frictionDamageFactor * velocity * Time.fixedDeltaTime);
         }

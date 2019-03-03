@@ -25,6 +25,7 @@ public class ShipController : MonoBehaviour
     CheckpointManager cm;
 
     float countdown = 0.0f;
+    bool inEffector = false;
 
     void Disable(float time)
     {
@@ -76,13 +77,16 @@ public class ShipController : MonoBehaviour
         {
             shipFuel.isThrusting = false;
             shipFuel.isStabilizing = false;
+            thrusterAnim.SetBool("IsThrusting", false);
+            leftStabAnim.SetBool("IsThrusting", false);
+            rightStabAnim.SetBool("IsThrusting", false);
             return;
         }
 
         float vert = Input.GetAxis("Vertical");
         if (vert < 0.0f) vert = 0.0f;
 
-        rb.AddForce(transform.up * vert * mainThrustPower * Time.deltaTime);
+        rb.AddForce(transform.up * vert * mainThrustPower * Time.deltaTime * (inEffector ? 10.0f : 1.0f));
         thrusterAnim.SetBool("IsThrusting", (vert > 0.0f));
         shipFuel.isThrusting = (vert > 0.0f);
 
@@ -90,7 +94,7 @@ public class ShipController : MonoBehaviour
         Vector3 forceDir = ((horiz > 0) ? leftStabilizer.up : rightStabilizer.up) * -1.0f * Mathf.Abs(horiz);
         Vector3 forcePos = ((horiz > 0) ? leftStabilizer.position : rightStabilizer.position);
 
-        rb.AddForceAtPosition(forceDir * stabilizerPower * Time.deltaTime, forcePos);
+        rb.AddForceAtPosition(forceDir * stabilizerPower * Time.deltaTime * (inEffector ? 10.0f : 1.0f), forcePos);
         if(Mathf.Abs(horiz) > 0)
         {
             if(horiz > 0)
@@ -104,6 +108,15 @@ public class ShipController : MonoBehaviour
             leftStabAnim.SetBool("IsThrusting", false);
             rightStabAnim.SetBool("IsThrusting", false);
             shipFuel.isStabilizing = false;
+        }
+    }
+    private void FixedUpdate()
+    {
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 1.5f, LayerMask.GetMask("Effectors"));
+        inEffector = false;
+        foreach(Collider2D col in colliders)
+        {
+            inEffector |= col.usedByEffector;
         }
     }
 }

@@ -10,6 +10,7 @@ public class LightningTrap : MonoBehaviour
     [SerializeField] float effectTime = 3.0f;
 
     bool trapEnabled = false;
+    bool zapped = false;
 
     float countdown = 0.0f;
 
@@ -28,12 +29,17 @@ public class LightningTrap : MonoBehaviour
         else
         {
             countdown = 0.0f;
+            zapped = false;
         }
         lightning.SetActive(trapEnabled);
     }
 
-    private void OnTriggerEnter(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        if(trapEnabled) collision.SendMessage("Disable", effectTime);
+        if (trapEnabled && !zapped)
+        {
+            collision.SendMessage("Disable", effectTime);
+            zapped = true;
+        }
     }
 }
