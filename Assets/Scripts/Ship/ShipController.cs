@@ -24,6 +24,23 @@ public class ShipController : MonoBehaviour
 
     CheckpointManager cm;
 
+    float countdown = 0.0f;
+
+    void Disable(float time)
+    {
+        countdown = time;
+        StartCoroutine(Countdown());
+        Debug.Log("disable");
+    }
+
+    IEnumerator Countdown()
+    {
+        while(countdown > 0.0f)
+        {
+            countdown -= Time.deltaTime;
+            yield return null;
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -50,12 +67,15 @@ public class ShipController : MonoBehaviour
             transform.rotation = Quaternion.identity;
             shipFuel.AdjustFuel(90.0f);
             shipHealth.AdjustDamage(-100.0f);
+
+
+            Disable(3.0f);
         }
 
-        if (shipFuel.fuel <= 0.0f)
+        if (shipFuel.fuel <= 0.0f || countdown > 0.0f)
         {
             shipFuel.isThrusting = false;
-           shipFuel.isStabilizing = false;
+            shipFuel.isStabilizing = false;
             return;
         }
 

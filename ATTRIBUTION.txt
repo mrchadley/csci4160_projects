@@ -1,1 +1,3 @@
 Josh 'Moondog' Mooney(JLMoondog on opengameart): PlatformTiles
+VinnNo.0(opengameart): Conveyor
+EVIL_ENT(opengameart): Lightning
