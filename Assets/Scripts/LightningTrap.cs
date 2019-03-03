@@ -5,6 +5,7 @@ using UnityEngine;
 public class LightningTrap : MonoBehaviour
 {
     [SerializeField] GameObject lightning;
+    [SerializeField] float timeOffset = 0.0f;
     [SerializeField] float onTime = 2.0f; 
     [SerializeField] float offTime = 5.0f;
     [SerializeField] float effectTime = 3.0f;
@@ -13,6 +14,12 @@ public class LightningTrap : MonoBehaviour
     bool zapped = false;
 
     float countdown = 0.0f;
+
+
+    private void Start()
+    {
+        countdown = timeOffset;
+    }
 
     private void Update()
     {

@@ -15,11 +15,16 @@ public class Checkpoint : MonoBehaviour
     private void OnTriggerStay2D(Collider2D collision)
     {
         Rigidbody2D rb = collision.attachedRigidbody;
-        if(collision.tag == "Player" && rb.velocity.sqrMagnitude < 0.0001f && rb.angularVelocity < 0.0001f
-                                    && manager.lastCheckpoint != this && manager.lastCheckpoint.index < index)
+        if(collision.tag == "Player" && rb.velocity.sqrMagnitude < 0.0001f && rb.angularVelocity < 0.0001f)
         {
-            manager.lastCheckpoint = this;
-            Debug.Log(name + " Reached!");
+            if (manager.lastCheckpoint != this && manager.lastCheckpoint.index < index)
+            {
+                manager.lastCheckpoint = this;
+                Debug.Log(name + " Reached!");
+            }
+
+            collision.SendMessage("AdjustDamage", -100.0f);
+            collision.SendMessage("AdjustFuel", 90.0f);
         }
     }
 }
