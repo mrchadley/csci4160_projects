@@ -15,7 +15,7 @@ public class Checkpoint : MonoBehaviour
     private void OnTriggerStay2D(Collider2D collision)
     {
         Rigidbody2D rb = collision.attachedRigidbody;
-        if(collision.tag == "Player" && rb.velocity.sqrMagnitude < 0.0001f && rb.angularVelocity < 0.0001f)
+        if(collision.tag == "Player" && rb.velocity.sqrMagnitude < 0.0001f && rb.angularVelocity < 0.0001f && Mathf.Abs(Vector3.Angle(collision.transform.up, Vector3.up)) < 0.1f)
         {
             if (manager.lastCheckpoint != this && manager.lastCheckpoint.index < index)
             {

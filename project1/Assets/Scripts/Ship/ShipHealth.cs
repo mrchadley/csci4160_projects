@@ -15,9 +15,12 @@ public class ShipHealth : MonoBehaviour
     [SerializeField] RectTransform gaugePointer;
     [SerializeField] Collider2D body;
     [SerializeField] Collider2D foot;
+    [SerializeField] GameObject explosionPrefab;
 
     Rigidbody2D rb;
     float velocity = 0.0f;
+
+    public bool dead = false;
 
     private void Start()
     {
@@ -28,12 +31,12 @@ public class ShipHealth : MonoBehaviour
     {
         damage += amount;
 
-        if(damage >= 100.0f)
+        if (damage >= 100.0f)
         {
-            Die();
+            if(!dead) Die();
             damage = 100.0f;
         }
-        if(damage < 0.0f)
+        if (damage < 0.0f)
         {
             damage = 0.0f;
         }
@@ -44,24 +47,26 @@ public class ShipHealth : MonoBehaviour
     void Die()
     {
         Debug.Log("Died.");
+        dead = true;
+        if(explosionPrefab != null) StartCoroutine(ExplodeAndWait());
     }
 
     private void OnValidate()
     {
-        gaugePointer.rotation = Quaternion.Euler(0,0,(90.0f - (damage/100.0f * 90.0f)));
+        gaugePointer.rotation = Quaternion.Euler(0, 0, (90.0f - (damage / 100.0f * 90.0f)));
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Debug.Log(velocity);
-        if(velocity > impactVelocityThreshold)
+        if (velocity > impactVelocityThreshold)
         {
             AdjustDamage(impactDamageFactor * velocity);
         }
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if(velocity > frictionVelocityThreshold && collision.otherCollider == body && !collision.collider.usedByEffector)
+        if (velocity > frictionVelocityThreshold && collision.otherCollider == body && !collision.collider.usedByEffector)
         {
             AdjustDamage(frictionDamageFactor * velocity * Time.fixedDeltaTime);
         }
@@ -75,5 +80,14 @@ public class ShipHealth : MonoBehaviour
     private void FixedUpdate()
     {
         velocity = rb.velocity.magnitude;
+    }
+
+    IEnumerator ExplodeAndWait()
+    {
+        GameObject expInstance = Instantiate(explosionPrefab, transform);
+        float destroyTime = expInstance.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).length;
+        Destroy(expInstance, destroyTime);
+        yield return new WaitForSeconds(3.0f);
+        ShipController.instance.ShipReset();
     }
 }

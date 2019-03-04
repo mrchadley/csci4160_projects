@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class ShipController : MonoBehaviour
 {
+    public static ShipController instance;
+
     [Header("References")]
     [SerializeField] private Transform leftStabilizer;
     [SerializeField] private Transform rightStabilizer;
@@ -24,25 +26,46 @@ public class ShipController : MonoBehaviour
 
     CheckpointManager cm;
 
-    float countdown = 0.0f;
+    bool countingDown = false;
     bool inEffector = false;
+
+    private void Awake()
+    {
+        if (instance == null) instance = this;
+        else DestroyImmediate(this);
+    }
+
+    public void ShipReset()
+    {
+        rb.Sleep();
+
+        if (cm.lastCheckpoint != null)
+            transform.position = cm.lastCheckpoint.transform.position;
+        else
+            transform.position = Vector3.up * -4.85f;
+
+        transform.rotation = Quaternion.identity;
+        //TO-DO: create reset methods for these scripts
+        shipFuel.AdjustFuel(90.0f);
+        shipHealth.AdjustDamage(-100.0f);
+        shipHealth.dead = false;
+
+        Disable(2.0f);
+    }
 
     void Disable(float time)
     {
-        countdown = time;
-        StartCoroutine(Countdown());
+        countingDown = true;
+        StartCoroutine(Countdown(time));
         Debug.Log("disable");
     }
 
-    IEnumerator Countdown()
+    IEnumerator Countdown(float time)
     {
-        while(countdown > 0.0f)
-        {
-            countdown -= Time.deltaTime;
-            yield return null;
-        }
+        yield return new WaitForSeconds(time);
+        countingDown = false;
     }
-    // Start is called before the first frame update
+
     void Start()
     {
         cm = CheckpointManager.instance;
@@ -51,29 +74,15 @@ public class ShipController : MonoBehaviour
         shipHealth = GetComponent<ShipHealth>();
     }
 
-    // Update is called once per frame
+    // TO-DO: Move physics stuff to fixed update
     void Update()
     {
         if(Input.GetButtonDown("Reset"))
         {
-            //add post reset countdown before allowing play
-
-            rb.Sleep();
-
-            if (cm.lastCheckpoint != null)
-                transform.position = cm.lastCheckpoint.transform.position;
-            else
-                transform.position = Vector3.up * -4.85f;
-
-            transform.rotation = Quaternion.identity;
-            shipFuel.AdjustFuel(90.0f);
-            shipHealth.AdjustDamage(-100.0f);
-
-
-            Disable(3.0f);
+            ShipReset();            
         }
 
-        if (shipFuel.fuel <= 0.0f || countdown > 0.0f)
+        if (shipFuel.fuel <= 0.0f || countingDown || shipHealth.dead)
         {
             shipFuel.isThrusting = false;
             shipFuel.isStabilizing = false;

@@ -1,3 +1,4 @@
-Josh 'Moondog' Mooney(JLMoondog on opengameart): PlatformTiles
+JLMoondog(opengameart)[Josh 'Moondog' Mooney]: PlatformTiles
 VinnNo.0(opengameart): Conveyor
 EVIL_ENT(opengameart): Lightning
+Bleed(opengameart)["Bleed - http://remusprites.carbonmade.com/"]: Explosion

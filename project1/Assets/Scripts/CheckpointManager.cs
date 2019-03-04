@@ -10,7 +10,7 @@ public class CheckpointManager : MonoBehaviour
 
     private void Awake()
     {
-        if (CheckpointManager.instance == null) CheckpointManager.instance = this;
+        if (instance == null) instance = this;
         else DestroyImmediate(this);
     }
 }
