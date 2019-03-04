@@ -8,8 +8,10 @@ public class ShipFuel : MonoBehaviour
     [Range(0.0f, 90.0f)] public float fuel = 90.0f;
     [SerializeField] float thrusterUsage = 1.0f;
     [SerializeField] float stabilizerUsage = 0.1f;
+    [SerializeField] float turboMultiplier = 2.0f;
     public bool isThrusting = false;
     public bool isStabilizing = false;
+    public bool isTurbo = false;
 
     [Header("References")]
     [SerializeField] RectTransform gaugePointer;
@@ -43,7 +45,7 @@ public class ShipFuel : MonoBehaviour
         }
         if (isStabilizing)
         {
-            AdjustFuel(-stabilizerUsage * Time.deltaTime);
+            AdjustFuel(-stabilizerUsage * Time.deltaTime * (isTurbo ? turboMultiplier : 1.0f));
         }
     }
 

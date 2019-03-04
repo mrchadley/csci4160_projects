@@ -18,7 +18,8 @@ public class ShipHealth : MonoBehaviour
     [SerializeField] GameObject explosionPrefab;
 
     Rigidbody2D rb;
-    float velocity = 0.0f;
+    float vMag = 0.0f;
+    Vector3 velocity = Vector3.zero;
 
     public bool dead = false;
 
@@ -58,28 +59,30 @@ public class ShipHealth : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log(velocity);
-        if (velocity > impactVelocityThreshold)
+        Vector2 norm = collision.GetContact(0).normal;
+        float vNorm = Vector3.Project(velocity, new Vector3(norm.x, norm.y)).magnitude;
+        if (vNorm > impactVelocityThreshold)
         {
-            AdjustDamage(impactDamageFactor * velocity);
+            AdjustDamage(impactDamageFactor * vNorm);
         }
     }
     private void OnCollisionStay2D(Collision2D collision)
     {
-        if (velocity > frictionVelocityThreshold && collision.otherCollider == body && !collision.collider.usedByEffector)
+        if (vMag > frictionVelocityThreshold && collision.otherCollider == body && !collision.collider.usedByEffector)
         {
-            AdjustDamage(frictionDamageFactor * velocity * Time.fixedDeltaTime);
+            AdjustDamage(frictionDamageFactor * vMag * Time.fixedDeltaTime);
         }
     }
 
     private void OnGUI()
     {
-        GUILayout.Label((velocity > 0.001f ? velocity + "" : "0"));
+        GUILayout.Label((vMag > 0.001f ? vMag + "" : "0"));
     }
 
     private void FixedUpdate()
     {
-        velocity = rb.velocity.magnitude;
+        velocity = rb.velocity;
+        vMag = velocity.magnitude;
     }
 
     IEnumerator ExplodeAndWait()

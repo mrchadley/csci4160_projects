@@ -19,6 +19,7 @@ public class ShipController : MonoBehaviour
     [Header("Thrust")]
     [SerializeField] private float mainThrustPower = 10.0f;
     [SerializeField] private float stabilizerPower = 2.0f;
+    public float turboMultiplier = 2.0f;
     //create variables to make thrusting better
 
     ShipFuel shipFuel;
@@ -28,6 +29,7 @@ public class ShipController : MonoBehaviour
 
     bool countingDown = false;
     bool inEffector = false;
+    bool faded = false;
 
     private void Awake()
     {
@@ -77,47 +79,60 @@ public class ShipController : MonoBehaviour
     // TO-DO: Move physics stuff to fixed update
     void Update()
     {
-        if(Input.GetButtonDown("Reset"))
+        float vert;
+
+        if (!faded)
         {
-            ShipReset();            
-        }
+            if (Input.GetButtonDown("Reset"))
+            {
+                ShipReset();
+            }
 
-        if (shipFuel.fuel <= 0.0f || countingDown || shipHealth.dead)
-        {
-            shipFuel.isThrusting = false;
-            shipFuel.isStabilizing = false;
-            thrusterAnim.SetBool("IsThrusting", false);
-            leftStabAnim.SetBool("IsThrusting", false);
-            rightStabAnim.SetBool("IsThrusting", false);
-            return;
-        }
+            if ((shipFuel.fuel <= 0.0f || countingDown || shipHealth.dead))
+            {
+                shipFuel.isThrusting = false;
+                shipFuel.isStabilizing = false;
+                thrusterAnim.SetBool("IsThrusting", false);
+                leftStabAnim.SetBool("IsThrusting", false);
+                rightStabAnim.SetBool("IsThrusting", false);
+                return;
+            }
 
-        float vert = Input.GetAxis("Vertical");
-        if (vert < 0.0f) vert = 0.0f;
+            float horiz = Input.GetAxis("Horizontal");
+            Vector3 forceDir = ((horiz > 0) ? leftStabilizer.up : rightStabilizer.up) * -1.0f * Mathf.Abs(horiz);
+            Vector3 forcePos = ((horiz > 0) ? leftStabilizer.position : rightStabilizer.position);
 
-        rb.AddForce(transform.up * vert * mainThrustPower * Time.deltaTime * (inEffector ? 10.0f : 1.0f));
-        thrusterAnim.SetBool("IsThrusting", (vert > 0.0f));
-        shipFuel.isThrusting = (vert > 0.0f);
-
-        float horiz = Input.GetAxis("Horizontal");
-        Vector3 forceDir = ((horiz > 0) ? leftStabilizer.up : rightStabilizer.up) * -1.0f * Mathf.Abs(horiz);
-        Vector3 forcePos = ((horiz > 0) ? leftStabilizer.position : rightStabilizer.position);
-
-        rb.AddForceAtPosition(forceDir * stabilizerPower * Time.deltaTime * (inEffector ? 10.0f : 1.0f), forcePos);
-        if(Mathf.Abs(horiz) > 0)
-        {
-            if(horiz > 0)
-                leftStabAnim.SetBool("IsThrusting", true);
+            rb.AddForceAtPosition(forceDir * stabilizerPower * Time.deltaTime * (Input.GetButton("Turbo") ? turboMultiplier : 1.0f) * (inEffector ? 10.0f : 1.0f), forcePos);
+            shipFuel.isTurbo = Input.GetButton("Turbo");
+            if(Mathf.Abs(horiz) > 0)
+            {
+                if(horiz > 0)
+                    leftStabAnim.SetBool("IsThrusting", true);
+                else
+                    rightStabAnim.SetBool("IsThrusting", true);
+                shipFuel.isStabilizing = true;
+            }
             else
-                rightStabAnim.SetBool("IsThrusting", true);
-            shipFuel.isStabilizing = true;
+            {
+                leftStabAnim.SetBool("IsThrusting", false);
+                rightStabAnim.SetBool("IsThrusting", false);
+                shipFuel.isStabilizing = false;
+            }
+            vert = Input.GetAxis("Vertical");
+            if (vert < 0.0f) vert = 0.0f;
+            shipFuel.isThrusting = (vert > 0.0f);
+            rb.AddForce(transform.up * vert * mainThrustPower * Time.deltaTime * (inEffector ? 10.0f : 1.0f));
+            thrusterAnim.SetBool("IsThrusting", (vert > 0.0f));
+
         }
         else
         {
-            leftStabAnim.SetBool("IsThrusting", false);
-            rightStabAnim.SetBool("IsThrusting", false);
-            shipFuel.isStabilizing = false;
+            rb.AddForce(transform.up * mainThrustPower * Time.deltaTime);
+            
         }
+
+        
+
     }
     private void FixedUpdate()
     {
@@ -127,5 +142,12 @@ public class ShipController : MonoBehaviour
         {
             inEffector |= col.usedByEffector;
         }
+    }
+
+    void Faded()
+    {
+        Debug.Log("YOU WIN!");
+        faded = true;
+        thrusterAnim.SetBool("IsThrusting", true);
     }
 }
