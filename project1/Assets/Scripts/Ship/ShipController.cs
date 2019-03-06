@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class ShipController : MonoBehaviour
 {
@@ -10,7 +11,11 @@ public class ShipController : MonoBehaviour
     [SerializeField] Thruster main;
     [SerializeField] Thruster left;
     [SerializeField] Thruster right;
-    [SerializeField] UIFlasher pwrFlash;
+    [SerializeField] UIFlasher sysFlash;
+
+    [Header("Go Text")]
+    [SerializeField] TextMeshProUGUI goText;
+    [SerializeField] float textTime = 3.0f;
     private Rigidbody2D rb;
 
     [Header("Thrust")]
@@ -78,7 +83,7 @@ public class ShipController : MonoBehaviour
         bool thrust = (rand < zapThrustChance && rand > -zapThrustChance);
 
         controlsEnabled = false;
-        pwrFlash.SetState(true, thrust);
+        sysFlash.SetState(true, thrust);
         left.isThrusting = (thrust && rand < 0);
         left.isTurbo = thrust;
         right.isThrusting = (thrust && rand > 0);
@@ -91,7 +96,7 @@ public class ShipController : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         controlsEnabled = true;
-        pwrFlash.SetState(false, false);
+        sysFlash.SetState(false, false);
     }
 
 
@@ -107,6 +112,8 @@ public class ShipController : MonoBehaviour
         rb.centerOfMass = Vector2.zero;
         fuel = GetComponent<ShipFuel>();
         health = GetComponent<ShipHealth>();
+
+        goText.enabled = false;
     }
     private void Update()
     {
@@ -216,25 +223,6 @@ public class ShipController : MonoBehaviour
 
         rb.freezeRotation = true;
         transform.rotation = Quaternion.identity;
-
-        //StartCoroutine(Fading());
-    }
-
-    IEnumerator Fading()
-    {
-        float angle = transform.rotation.eulerAngles.z;
-        if (angle > 5.0f) left.isThrusting = true;
-        else if (angle < -5.0f) right.isThrusting = true;
-
-        yield return new WaitUntil(() => Mathf.Abs(transform.rotation.eulerAngles.z) < 5.0f);
-
-        left.isThrusting = false;
-        right.isThrusting = false;
-
-        rb.freezeRotation = true;
-        transform.rotation = Quaternion.identity;
-
-        Debug.Log("Oriented Vertically!");
     }
 
     private void OnBecameInvisible()
@@ -264,5 +252,27 @@ public class ShipController : MonoBehaviour
         }
         controlsEnabled = true;
         refueling = false;
+        StartCoroutine(ShowText());
+    }
+
+    IEnumerator ShowText()
+    {
+        goText.color = Color.white;
+        goText.enabled = true;
+        yield return new WaitForSeconds(textTime);
+
+        float t = 0;
+        Color col = Color.white;
+
+        while (col.a > 0)
+        {
+            col.a = Mathf.Lerp(1.0f, 0.0f, t);
+            goText.color = col;
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        goText.enabled = false;
+
     }
 }
