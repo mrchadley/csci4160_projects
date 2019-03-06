@@ -16,6 +16,7 @@ public class ShipHealth : MonoBehaviour
     [SerializeField] Collider2D body;
     [SerializeField] Collider2D foot;
     [SerializeField] GameObject explosionPrefab;
+    [SerializeField] UIFlasher dmgFlash;
 
     Rigidbody2D rb;
     float vMag = 0.0f;
@@ -43,12 +44,14 @@ public class ShipHealth : MonoBehaviour
         }
 
         gaugePointer.rotation = Quaternion.Euler(0, 0, (90.0f - (damage / 100.0f * 90.0f)));
+        dmgFlash.SetState(damage > 70.0f, damage > 85.0f);
     }
 
     void Die()
     {
         Debug.Log("Died.");
         dead = true;
+        ShipController.instance.controlsEnabled = false;
         if(explosionPrefab != null) StartCoroutine(ExplodeAndWait());
     }
 
@@ -72,11 +75,6 @@ public class ShipHealth : MonoBehaviour
         {
             AdjustDamage(frictionDamageFactor * vMag * Time.fixedDeltaTime);
         }
-    }
-
-    private void OnGUI()
-    {
-        GUILayout.Label((vMag > 0.001f ? vMag + "" : "0"));
     }
 
     private void FixedUpdate()

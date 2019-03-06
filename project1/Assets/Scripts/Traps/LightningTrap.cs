@@ -45,7 +45,7 @@ public class LightningTrap : MonoBehaviour
     {
         if (trapEnabled && !zapped)
         {
-            collision.SendMessage("Disable", effectTime);
+            collision.SendMessage("Zap", effectTime);
             zapped = true;
         }
     }

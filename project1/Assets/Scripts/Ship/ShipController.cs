@@ -7,34 +7,51 @@ public class ShipController : MonoBehaviour
     public static ShipController instance;
 
     [Header("References")]
-    [SerializeField] private Transform leftStabilizer;
-    [SerializeField] private Transform rightStabilizer;
-
-    [SerializeField] private Animator thrusterAnim;
-    [SerializeField] private Animator leftStabAnim;
-    [SerializeField] private Animator rightStabAnim;
-
+    [SerializeField] Thruster main;
+    [SerializeField] Thruster left;
+    [SerializeField] Thruster right;
+    [SerializeField] UIFlasher pwrFlash;
     private Rigidbody2D rb;
 
     [Header("Thrust")]
-    [SerializeField] private float mainThrustPower = 10.0f;
-    [SerializeField] private float stabilizerPower = 2.0f;
-    public float turboMultiplier = 2.0f;
-    //create variables to make thrusting better
+    [SerializeField] [Range(0.0f, 1.0f)]
+    float zapThrustChance = 0.2f;
 
-    ShipFuel shipFuel;
-    ShipHealth shipHealth;
+    ShipFuel fuel;
+    ShipHealth health;
 
     CheckpointManager cm;
 
-    bool countingDown = false;
-    bool inEffector = false;
-    bool faded = false;
-
-    private void Awake()
+    bool _controlsEnabled = true;
+    public bool controlsEnabled
     {
-        if (instance == null) instance = this;
-        else DestroyImmediate(this);
+        set
+        {
+            _controlsEnabled = value;
+            if (_controlsEnabled)
+            {
+                left.isThrusting = Input.GetButton("ThrusterLeft");
+                right.isThrusting = Input.GetButton("ThrusterRight");
+                main.isThrusting = Input.GetButton("ThrusterMain");
+
+                bool turbo = Input.GetButton("Turbo");
+                left.isTurbo = turbo;
+                right.isTurbo = turbo;
+            }
+            else
+            {
+                main.isThrusting = false;
+                left.isThrusting = false;
+                right.isThrusting = false;
+
+                left.isTurbo = false;
+                right.isTurbo = false;
+            }
+        }
+        get
+        {
+            return _controlsEnabled;
+        }
     }
 
     public void ShipReset()
@@ -48,37 +65,52 @@ public class ShipController : MonoBehaviour
 
         transform.rotation = Quaternion.identity;
         //TO-DO: create reset methods for these scripts
-        shipFuel.AdjustFuel(90.0f);
-        shipHealth.AdjustDamage(-100.0f);
-        shipHealth.dead = false;
+        fuel.AdjustFuel(90.0f);
+        health.AdjustDamage(-100.0f);
+        health.dead = false;
 
-        Disable(2.0f);
+        controlsEnabled = false;
+        StartCoroutine(Resetting(2.0f));
     }
-
-    void Disable(float time)
+    void Zap(float time)
     {
-        countingDown = true;
-        StartCoroutine(Countdown(time));
-        Debug.Log("disable");
-    }
+        float rand = Random.Range(-1.0f, 1.0f);
+        bool thrust = (rand < zapThrustChance && rand > -zapThrustChance);
 
-    IEnumerator Countdown(float time)
+        controlsEnabled = false;
+        pwrFlash.SetState(true, thrust);
+        left.isThrusting = (thrust && rand < 0);
+        left.isTurbo = thrust;
+        right.isThrusting = (thrust && rand > 0);
+        right.isTurbo = thrust;
+
+        StartCoroutine(Resetting(time));
+    }
+    IEnumerator Resetting(float time)
     {
         yield return new WaitForSeconds(time);
-        countingDown = false;
+
+        controlsEnabled = true;
+        pwrFlash.SetState(false, false);
     }
 
-    void Start()
+
+    private void Awake()
+    {
+        if (instance == null) instance = this;
+        else DestroyImmediate(this);
+    }
+    private void Start()
     {
         cm = CheckpointManager.instance;
         rb = GetComponent<Rigidbody2D>();
-        shipFuel = GetComponent<ShipFuel>();
-        shipHealth = GetComponent<ShipHealth>();
+        rb.centerOfMass = Vector2.zero;
+        fuel = GetComponent<ShipFuel>();
+        health = GetComponent<ShipHealth>();
     }
-
-    // TO-DO: Move physics stuff to fixed update
-    void Update()
+    private void Update()
     {
+        /*
         float vert;
 
         if (!faded)
@@ -130,24 +162,107 @@ public class ShipController : MonoBehaviour
             rb.AddForce(transform.up * mainThrustPower * Time.deltaTime);
             
         }
+        */
 
-        
 
-    }
-    private void FixedUpdate()
-    {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 1.5f, LayerMask.GetMask("Effectors"));
-        inEffector = false;
-        foreach(Collider2D col in colliders)
+        if (Input.GetButtonDown("Reset"))
         {
-            inEffector |= col.usedByEffector;
+            ShipReset();
+        }
+
+        if (controlsEnabled)
+        {
+            if (Input.GetButtonDown("ThrusterMain"))
+                main.isThrusting = true;
+            if (Input.GetButtonUp("ThrusterMain"))
+                main.isThrusting = false;
+
+            if (Input.GetButtonDown("ThrusterLeft") && !right.isThrusting)
+                left.isThrusting = true;
+            if (Input.GetButtonUp("ThrusterLeft"))
+            {
+                left.isThrusting = false;
+                right.isThrusting = Input.GetButton("ThrusterRight");
+            }
+            
+
+            if (Input.GetButtonDown("ThrusterRight") && !left.isThrusting)
+                right.isThrusting = true;
+            if (Input.GetButtonUp("ThrusterRight"))
+            {
+                right.isThrusting = false;
+                left.isThrusting = Input.GetButton("ThrusterLeft");
+            }
+
+            if (Input.GetButtonDown("Turbo"))
+            {
+                left.isTurbo = true;
+                right.isTurbo = true;
+            }
+            if (Input.GetButtonUp("Turbo"))
+            {
+                right.isTurbo = false;
+                left.isTurbo = false;
+            }
         }
     }
 
-    void Faded()
+    public bool fading = false;
+    private void Fade()
     {
-        Debug.Log("YOU WIN!");
-        faded = true;
-        thrusterAnim.SetBool("IsThrusting", true);
+        fading = true;
+        controlsEnabled = false;
+        main.isThrusting = true;
+
+        rb.freezeRotation = true;
+        transform.rotation = Quaternion.identity;
+
+        //StartCoroutine(Fading());
+    }
+
+    IEnumerator Fading()
+    {
+        float angle = transform.rotation.eulerAngles.z;
+        if (angle > 5.0f) left.isThrusting = true;
+        else if (angle < -5.0f) right.isThrusting = true;
+
+        yield return new WaitUntil(() => Mathf.Abs(transform.rotation.eulerAngles.z) < 5.0f);
+
+        left.isThrusting = false;
+        right.isThrusting = false;
+
+        rb.freezeRotation = true;
+        transform.rotation = Quaternion.identity;
+
+        Debug.Log("Oriented Vertically!");
+    }
+
+    private void OnBecameInvisible()
+    {
+        Debug.Log("Out of view!");
+        if(fading) Destroy(gameObject, 2.0f);
+    }
+
+    bool refueling = false;
+    void RefuelRepair()
+    {
+
+        if (!refueling && (fuel.fuel < 90.0f || health.damage > 0.0f))
+        {
+            refueling = true;
+            controlsEnabled = false;
+            StartCoroutine(RefuelingRepairing());
+        }
+    }
+    IEnumerator RefuelingRepairing()
+    {
+        while(fuel.fuel < 90.0f || health.damage > 0.0f)
+        {
+            fuel.AdjustFuel(9.0f * Time.deltaTime);
+            health.AdjustDamage(-20.0f * Time.deltaTime);
+            yield return null;
+        }
+        controlsEnabled = true;
+        refueling = false;
     }
 }

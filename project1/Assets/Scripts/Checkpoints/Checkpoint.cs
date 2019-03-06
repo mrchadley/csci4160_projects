@@ -12,10 +12,10 @@ public class Checkpoint : MonoBehaviour
         manager = CheckpointManager.instance;
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
-        Rigidbody2D rb = collision.attachedRigidbody;
-        if(collision.tag == "Player" && rb.velocity.sqrMagnitude < 0.0001f && rb.angularVelocity < 0.0001f && Mathf.Abs(Vector3.Angle(collision.transform.up, Vector3.up)) < 0.1f)
+        Rigidbody2D rb = collision.collider.attachedRigidbody;
+        if(rb.tag == "Player" && rb.velocity.sqrMagnitude < 0.0001f && rb.angularVelocity < 0.0001f && Mathf.Abs(Vector3.Angle(rb.transform.up, Vector3.up)) < 0.1f)
         {
             if (manager.lastCheckpoint != this && manager.lastCheckpoint.index < index)
             {
@@ -23,8 +23,7 @@ public class Checkpoint : MonoBehaviour
                 Debug.Log(name + " Reached!");
             }
 
-            collision.SendMessage("AdjustDamage", -100.0f);
-            collision.SendMessage("AdjustFuel", 90.0f);
+            rb.SendMessage("RefuelRepair");
         }
     }
 }

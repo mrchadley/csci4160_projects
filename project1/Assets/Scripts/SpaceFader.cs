@@ -7,7 +7,7 @@ public class SpaceFader : MonoBehaviour
     [SerializeField] Transform player;
     [SerializeField] SpriteRenderer sprite;
 
-    [SerializeField] float fadeStart = 750.0f;
+    [SerializeField] float fadeStart = 300.0f;
     [SerializeField] float fadeLength = 150.0f;
 
     [SerializeField] Color col;
@@ -25,7 +25,10 @@ public class SpaceFader : MonoBehaviour
 
         sprite.color = col;
 
-        if (t >= 1 && !faded)
-            player.SendMessage("Faded");
+        if (t >= 1)
+        {
+            player.SendMessage("Fade");
+            enabled = false;
+        }
     }
 }

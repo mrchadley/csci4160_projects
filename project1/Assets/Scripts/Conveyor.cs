@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Conveyor : MonoBehaviour
 {
+    [SerializeField] float speed = 1.2f;
     [SerializeField] bool isRightward = false;
 
     SurfaceEffector2D surface;
@@ -12,7 +13,9 @@ public class Conveyor : MonoBehaviour
     {
         surface = GetComponent<SurfaceEffector2D>();
 
-        surface.speed = (isRightward ? 1.2f : -1.2f);
+        speed = Mathf.Abs(speed);
+
+        surface.speed = (isRightward ? speed : -speed);
 
         Animator[] anims = GetComponentsInChildren<Animator>();
 

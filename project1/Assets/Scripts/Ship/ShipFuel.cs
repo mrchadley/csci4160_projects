@@ -6,17 +6,16 @@ public class ShipFuel : MonoBehaviour
 {
     [Header("Fuel Stats")]
     [Range(0.0f, 90.0f)] public float fuel = 90.0f;
-    [SerializeField] float thrusterUsage = 1.0f;
-    [SerializeField] float stabilizerUsage = 0.1f;
-    [SerializeField] float turboMultiplier = 2.0f;
-    public bool isThrusting = false;
-    public bool isStabilizing = false;
-    public bool isTurbo = false;
+    public bool hasFuel
+    {
+        get { return fuel > 0.0f; }
+    }
 
     [Header("References")]
     [SerializeField] RectTransform gaugePointer;
+    [SerializeField] UIFlasher fuelFlash;
 
-    public void AdjustFuel(float amount)
+    public bool AdjustFuel(float amount)
     {
         fuel += amount;
 
@@ -30,24 +29,13 @@ public class ShipFuel : MonoBehaviour
         }
 
         gaugePointer.rotation = Quaternion.Euler(0, 0, -90.0f + fuel);
+        fuelFlash.SetState(fuel < 30.0f, fuel < 15.0f);
+
+        return fuel > 0.0f;
     }
 
     private void OnValidate()
     {
         gaugePointer.rotation = Quaternion.Euler(0, 0, -90.0f + fuel);
     }
-
-    private void Update()
-    {
-        if(isThrusting)
-        {
-            AdjustFuel(-thrusterUsage * Time.deltaTime);
-        }
-        if (isStabilizing)
-        {
-            AdjustFuel(-stabilizerUsage * Time.deltaTime * (isTurbo ? turboMultiplier : 1.0f));
-        }
-    }
-
-
 }
