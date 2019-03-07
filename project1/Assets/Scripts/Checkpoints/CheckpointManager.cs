@@ -37,7 +37,7 @@ public class CheckpointManager : MonoBehaviour
     {
         reachedText.color = Color.white;
         reachedText.enabled = true;
-        yield return new WaitForSeconds(textTime);
+        yield return new WaitForSecondsRealtime(textTime);
 
         float t = 0;
         Color col = Color.white;
@@ -46,7 +46,7 @@ public class CheckpointManager : MonoBehaviour
         {
             col.a = Mathf.Lerp(1.0f, 0.0f, t);
             reachedText.color = col;
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             yield return null;
         }
 

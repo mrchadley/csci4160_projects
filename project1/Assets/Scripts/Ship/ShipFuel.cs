@@ -17,6 +17,13 @@ public class ShipFuel : MonoBehaviour
 
     public bool AdjustFuel(float amount)
     {
+        if (ShipController.instance.fading) return true;
+
+        if (amount < 0)
+        {
+            StatCounter.instance.fuelBurned -= amount;
+            amount *= DifficultyManager.mult;
+        }
         fuel += amount;
 
         if (fuel >= 90.0f)
@@ -26,6 +33,10 @@ public class ShipFuel : MonoBehaviour
         if (fuel < 0.0f)
         {
             fuel = 0.0f;
+            if(!stranded)
+            {
+                Stranded();
+            }
         }
 
         gaugePointer.rotation = Quaternion.Euler(0, 0, -90.0f + fuel);
@@ -34,8 +45,23 @@ public class ShipFuel : MonoBehaviour
         return fuel > 0.0f;
     }
 
+    public bool stranded = false;
+    void Stranded()
+    {
+        Debug.Log("Died.");
+        stranded = true;
+        StatCounter.instance.strandings++;
+        StartCoroutine(WaitAndReset());
+    }
+
     private void OnValidate()
     {
         gaugePointer.rotation = Quaternion.Euler(0, 0, -90.0f + fuel);
+    }
+
+    IEnumerator WaitAndReset()
+    {
+        yield return new WaitForSeconds(3.0f);
+        ShipController.instance.ShipReset();
     }
 }

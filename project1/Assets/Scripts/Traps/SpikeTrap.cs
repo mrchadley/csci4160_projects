@@ -10,12 +10,11 @@ public class SpikeTrap : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        //a.b = |a||b|cos@
-        //if magnitudes of a and b are 1:
-        //  a.b = cos@
-
         Vector3 vel = collision.attachedRigidbody.velocity.normalized;
         if (Vector3.Dot(vel, transform.up) > 0)
+        {
+            StatCounter.instance.spikings++;
             collision.SendMessage("AdjustDamage", impactDamage);
+        }
     }
 }

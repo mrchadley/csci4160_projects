@@ -14,11 +14,12 @@ public class ShipHealth : MonoBehaviour
     [Header("References")]
     [SerializeField] RectTransform gaugePointer;
     [SerializeField] Collider2D body;
-    [SerializeField] Collider2D foot;
     [SerializeField] GameObject explosionPrefab;
     [SerializeField] UIFlasher dmgFlash;
 
     Rigidbody2D rb;
+    StatCounter sc;
+
     float vMag = 0.0f;
     Vector3 velocity = Vector3.zero;
 
@@ -27,10 +28,17 @@ public class ShipHealth : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        sc = StatCounter.instance;
     }
 
     public void AdjustDamage(float amount)
     {
+        if (amount > 0)
+        {
+            sc.damageTaken += amount;
+            amount *= DifficultyManager.mult;
+        }
+
         damage += amount;
 
         if (damage >= 100.0f)
@@ -51,6 +59,7 @@ public class ShipHealth : MonoBehaviour
     {
         Debug.Log("Died.");
         dead = true;
+        sc.deaths++;
         ShipController.instance.controlsEnabled = false;
         if(explosionPrefab != null) StartCoroutine(ExplodeAndWait());
     }
@@ -66,6 +75,7 @@ public class ShipHealth : MonoBehaviour
         float vNorm = Vector3.Project(velocity, new Vector3(norm.x, norm.y)).magnitude;
         if (vNorm > impactVelocityThreshold)
         {
+            sc.collisions++;
             AdjustDamage(impactDamageFactor * vNorm);
         }
     }
@@ -74,7 +84,13 @@ public class ShipHealth : MonoBehaviour
         if (vMag > frictionVelocityThreshold && collision.otherCollider == body && !collision.collider.usedByEffector)
         {
             AdjustDamage(frictionDamageFactor * vMag * Time.fixedDeltaTime);
+            sc.distanceDragged += vMag * Time.fixedDeltaTime;
         }
+        else if (collision.otherCollider == body && collision.collider.usedByEffector)
+        {
+            sc.distanceConveyed += vMag * Time.fixedDeltaTime;
+        }
+
     }
 
     private void FixedUpdate()

@@ -13,9 +13,12 @@ public class ShipController : MonoBehaviour
     [SerializeField] Thruster right;
     [SerializeField] UIFlasher sysFlash;
 
-    [Header("Go Text")]
+    [Header("UI Stuff")]
+    [SerializeField] TextMeshProUGUI pausedText;
     [SerializeField] TextMeshProUGUI goText;
     [SerializeField] float textTime = 3.0f;
+
+
     private Rigidbody2D rb;
 
     [Header("Thrust")]
@@ -26,7 +29,10 @@ public class ShipController : MonoBehaviour
     ShipHealth health;
 
     CheckpointManager cm;
+    StatCounter sc;
 
+    bool paused = false;
+    bool zapped = false;
     bool _controlsEnabled = true;
     public bool controlsEnabled
     {
@@ -69,8 +75,10 @@ public class ShipController : MonoBehaviour
             transform.position = Vector3.up * -4.85f;
 
         transform.rotation = Quaternion.identity;
+
         //TO-DO: create reset methods for these scripts
         fuel.AdjustFuel(90.0f);
+        fuel.stranded = false;
         health.AdjustDamage(-100.0f);
         health.dead = false;
 
@@ -79,9 +87,11 @@ public class ShipController : MonoBehaviour
     }
     void Zap(float time)
     {
+        sc.zaps++;
         float rand = Random.Range(-1.0f, 1.0f);
         bool thrust = (rand < zapThrustChance && rand > -zapThrustChance);
 
+        zapped = true;
         controlsEnabled = false;
         sysFlash.SetState(true, thrust);
         left.isThrusting = (thrust && rand < 0);
@@ -96,6 +106,7 @@ public class ShipController : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         controlsEnabled = true;
+        zapped = false;
         sysFlash.SetState(false, false);
     }
 
@@ -104,77 +115,36 @@ public class ShipController : MonoBehaviour
     {
         if (instance == null) instance = this;
         else DestroyImmediate(this);
+
+        Debug.Log("Difficulty Multiplier: " + DifficultyManager.mult);
     }
     private void Start()
     {
         cm = CheckpointManager.instance;
+        sc = StatCounter.instance;
         rb = GetComponent<Rigidbody2D>();
         rb.centerOfMass = Vector2.zero;
         fuel = GetComponent<ShipFuel>();
         health = GetComponent<ShipHealth>();
 
         goText.enabled = false;
+        pausedText.enabled = false;
     }
     private void Update()
     {
-        /*
-        float vert;
-
-        if (!faded)
+        if(Input.GetButtonDown("Cancel"))
         {
-            if (Input.GetButtonDown("Reset"))
-            {
-                ShipReset();
-            }
-
-            if ((shipFuel.fuel <= 0.0f || countingDown || shipHealth.dead))
-            {
-                shipFuel.isThrusting = false;
-                shipFuel.isStabilizing = false;
-                thrusterAnim.SetBool("IsThrusting", false);
-                leftStabAnim.SetBool("IsThrusting", false);
-                rightStabAnim.SetBool("IsThrusting", false);
-                return;
-            }
-
-            float horiz = Input.GetAxis("Horizontal");
-            Vector3 forceDir = ((horiz > 0) ? leftStabilizer.up : rightStabilizer.up) * -1.0f * Mathf.Abs(horiz);
-            Vector3 forcePos = ((horiz > 0) ? leftStabilizer.position : rightStabilizer.position);
-
-            rb.AddForceAtPosition(forceDir * stabilizerPower * Time.deltaTime * (Input.GetButton("Turbo") ? turboMultiplier : 1.0f) * (inEffector ? 10.0f : 1.0f), forcePos);
-            shipFuel.isTurbo = Input.GetButton("Turbo");
-            if(Mathf.Abs(horiz) > 0)
-            {
-                if(horiz > 0)
-                    leftStabAnim.SetBool("IsThrusting", true);
-                else
-                    rightStabAnim.SetBool("IsThrusting", true);
-                shipFuel.isStabilizing = true;
-            }
-            else
-            {
-                leftStabAnim.SetBool("IsThrusting", false);
-                rightStabAnim.SetBool("IsThrusting", false);
-                shipFuel.isStabilizing = false;
-            }
-            vert = Input.GetAxis("Vertical");
-            if (vert < 0.0f) vert = 0.0f;
-            shipFuel.isThrusting = (vert > 0.0f);
-            rb.AddForce(transform.up * vert * mainThrustPower * Time.deltaTime * (inEffector ? 10.0f : 1.0f));
-            thrusterAnim.SetBool("IsThrusting", (vert > 0.0f));
-
+            paused = !paused;
+            Time.timeScale = (paused ? 0.0f : 1.0f);
+            pausedText.enabled = paused;
         }
-        else
-        {
-            rb.AddForce(transform.up * mainThrustPower * Time.deltaTime);
-            
-        }
-        */
 
+        if ((controlsEnabled || zapped) && !fading) sc.time += Time.deltaTime;
 
-        if (Input.GetButtonDown("Reset"))
+        if (Input.GetButtonDown("Reset") && !fading)
         {
             ShipReset();
+            sc.resets++;
         }
 
         if (controlsEnabled)
@@ -228,15 +198,19 @@ public class ShipController : MonoBehaviour
     private void OnBecameInvisible()
     {
         Debug.Log("Out of view!");
-        if(fading) Destroy(gameObject, 2.0f);
+        if (fading)
+        {
+            sc.CalculateScore();
+            Destroy(gameObject, 2.0f);
+        }
     }
 
     bool refueling = false;
     void RefuelRepair()
     {
-
-        if (!refueling && (fuel.fuel < 90.0f || health.damage > 0.0f))
+        if (!refueling && (fuel.fuel < 85.0f || health.damage > 5.0f))
         {
+            sc.refuels++;
             refueling = true;
             controlsEnabled = false;
             StartCoroutine(RefuelingRepairing());
@@ -259,7 +233,7 @@ public class ShipController : MonoBehaviour
     {
         goText.color = Color.white;
         goText.enabled = true;
-        yield return new WaitForSeconds(textTime);
+        yield return new WaitForSecondsRealtime(textTime);
 
         float t = 0;
         Color col = Color.white;
@@ -268,7 +242,7 @@ public class ShipController : MonoBehaviour
         {
             col.a = Mathf.Lerp(1.0f, 0.0f, t);
             goText.color = col;
-            t += Time.deltaTime;
+            t += Time.unscaledDeltaTime;
             yield return null;
         }
 

@@ -1,4 +1,5 @@
-JLMoondog(opengameart)[Josh 'Moondog' Mooney]: PlatformTiles
-VinnNo.0(opengameart): Conveyor
-EVIL_ENT(opengameart): Lightning
-Bleed(opengameart)["Bleed - http://remusprites.carbonmade.com/"]: Explosion
+JLMoondog(opengameart)[Josh 'Moondog' Mooney]: PlatformTiles: https://opengameart.org/content/cartoon-style-platform-tiles
+VinnNo.0(opengameart): Conveyor: https://opengameart.org/content/simple-conveyor-belt
+EVIL_ENT(opengameart): Lightning: https://opengameart.org/content/lightning-sprite-texture
+Bleed(opengameart)["Bleed - http://remusprites.carbonmade.com/"]: Explosion: https://opengameart.org/content/simple-explosion-bleeds-game-art
+rubberduck(opengameart): Flame, Flame_Blue: https://opengameart.org/content/25-special-effects-rendered-with-blender
