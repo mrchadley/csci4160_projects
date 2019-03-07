@@ -16,7 +16,8 @@ public class ShipHealth : MonoBehaviour
     [SerializeField] Collider2D body;
     [SerializeField] GameObject explosionPrefab;
     [SerializeField] UIFlasher dmgFlash;
-    [SerializeField] ParticleSystem sparks;
+    [SerializeField] ParticleSystem sparksPrefab;
+    [SerializeField] ParticleSystem dragSparksPrefab;
 
     Rigidbody2D rb;
     StatCounter sc;
@@ -78,6 +79,8 @@ public class ShipHealth : MonoBehaviour
         {
             sc.collisions++;
             AdjustDamage(impactDamageFactor * vNorm);
+
+            Instantiate(sparksPrefab, collision.GetContact(0).point, transform.rotation);
         }
     }
     private void OnCollisionStay2D(Collision2D collision)
@@ -86,6 +89,7 @@ public class ShipHealth : MonoBehaviour
         {
             AdjustDamage(frictionDamageFactor * vMag * Time.fixedDeltaTime);
             sc.distanceDragged += vMag * Time.fixedDeltaTime;
+            Instantiate(dragSparksPrefab, collision.GetContact(0).point, transform.rotation);
         }
         else
         {
