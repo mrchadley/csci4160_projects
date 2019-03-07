@@ -16,6 +16,7 @@ public class ShipHealth : MonoBehaviour
     [SerializeField] Collider2D body;
     [SerializeField] GameObject explosionPrefab;
     [SerializeField] UIFlasher dmgFlash;
+    [SerializeField] ParticleSystem sparks;
 
     Rigidbody2D rb;
     StatCounter sc;
@@ -86,11 +87,13 @@ public class ShipHealth : MonoBehaviour
             AdjustDamage(frictionDamageFactor * vMag * Time.fixedDeltaTime);
             sc.distanceDragged += vMag * Time.fixedDeltaTime;
         }
-        else if (collision.otherCollider == body && collision.collider.usedByEffector)
+        else
         {
-            sc.distanceConveyed += vMag * Time.fixedDeltaTime;
+            if (collision.otherCollider == body && collision.collider.usedByEffector)
+            {
+                sc.distanceConveyed += vMag * Time.fixedDeltaTime;
+            }
         }
-
     }
 
     private void FixedUpdate()
