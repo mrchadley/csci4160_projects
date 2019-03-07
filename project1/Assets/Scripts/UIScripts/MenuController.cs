@@ -11,10 +11,11 @@ public class MenuController : MonoBehaviour
 
     public void ExitGame()
     {
-        if (Application.platform == RuntimePlatform.WindowsEditor)
+        #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
-        else
+        #else
             Application.Quit();
+        #endif
     }
 
     public void SelectDifficulty(float difficultyMultiplier)
