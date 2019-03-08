@@ -27,6 +27,9 @@ public class StatCounter : MonoBehaviour
     public TMP_InputField nameField;
     [SerializeField]int score = 0;
 
+    public TextMeshProUGUI scoreHud;
+    public TextMeshProUGUI timeHud;
+
 
     private void Awake()
     {
@@ -50,6 +53,34 @@ public class StatCounter : MonoBehaviour
         scoreMenu.SetActive(false);
     }
 
+    void UpdateScore()
+    {
+        score = 0;
+        //calculate the score
+
+        score += zaps * 50;
+        score += resets * 25;
+        score += deaths * 75;
+        score += strandings * 75;
+        score += refuels * 25;
+        score += collisions * 5;
+        score += (int)fuelBurned * 10;
+        score += (int)damageTaken * 2;
+        score += (int)distanceDragged * 10;
+        score -= (int)distanceConveyed * 50;
+        score += (int)time;
+        //take into account the difficulty multiplier
+
+        score = (int)(score / DifficultyManager.mult);
+    }
+
+    private void Update()
+    {
+        UpdateScore();
+        scoreHud.text = score.ToString();
+        timeHud.text = ((int)time).ToString();
+    }
+
     public void CalculateScore()
     {
         Debug.Log("calc score");
@@ -69,22 +100,7 @@ public class StatCounter : MonoBehaviour
 
         scoreBreakdown.text = breakdown;
 
-        //calculate the score
-        
-        score += zaps * 50;
-        score += resets * 25;
-        score += deaths * 75;
-        score += strandings * 75;
-        score += refuels * 25;
-        score += collisions * 5;
-        score += (int)fuelBurned * 10;
-        score += (int)damageTaken * 2;
-        score += (int)distanceDragged * 10;
-        score -= (int)distanceConveyed * 50;
-        score += (int)time;
-        //take into account the difficulty multiplier
-
-        score = (int)(score / DifficultyManager.mult);
+        UpdateScore();
 
         scoreText.text = score.ToString();
 
