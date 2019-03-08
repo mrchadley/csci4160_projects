@@ -75,7 +75,7 @@ public class StatCounter : MonoBehaviour
         score += resets * 25;
         score += deaths * 75;
         score += strandings * 75;
-        score += (refuels-4) * 25;
+        score += refuels * 25;
         score += collisions * 5;
         score += (int)fuelBurned * 10;
         score += (int)damageTaken * 2;

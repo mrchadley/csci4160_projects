@@ -128,7 +128,10 @@ public class ShipController : MonoBehaviour
         health = GetComponent<ShipHealth>();
 
         goText.enabled = false;
-        pausedText.enabled = false;
+        paused = false;
+        pausedText.gameObject.SetActive(paused);
+
+        StartCoroutine(ShowText());
     }
     private void Update()
     {
@@ -136,7 +139,7 @@ public class ShipController : MonoBehaviour
         {
             paused = !paused;
             Time.timeScale = (paused ? 0.0f : 1.0f);
-            pausedText.enabled = paused;
+            pausedText.gameObject.SetActive(paused);
         }
 
         if ((controlsEnabled || zapped) && !fading) sc.time += Time.deltaTime;
