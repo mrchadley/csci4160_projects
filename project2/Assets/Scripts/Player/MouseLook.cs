@@ -22,6 +22,8 @@ public class MouseLook : MonoBehaviour
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
+
+        ySmoothed = yRotation = playerBody.transform.rotation.eulerAngles.y;
     }
 
     private void Update()
