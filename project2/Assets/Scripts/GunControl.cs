@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GunControl : MonoBehaviour
 {
@@ -10,12 +11,14 @@ public class GunControl : MonoBehaviour
     public AnimationCurve flashSizeCurve;
     public float flashDuration = 0.1f;
     public GameObject bulletHolePrefab;
+    Transform camTrans;
 
     public int totalAmmo = 120;
     public int maxMag = 30;
     public int curMag = 30;
     public float range = 50.0f;
 
+    public int bulletDmg = 15;
 
     public Animator anim;
     public Transform body;
@@ -27,6 +30,7 @@ public class GunControl : MonoBehaviour
     public float recoilAmount = 0.25f;
     public float recoilAimAmount = 0.1f;
     public float recoilRecoverTime = 0.2f;
+    public Text ammoUI;
 
     float recoilPos = 0;
     float recoilVel;
@@ -45,10 +49,14 @@ public class GunControl : MonoBehaviour
         }
     }
 
+    int layerMask;
 
     private void Start()
     {
         fireRate = 60.0f / rpm;
+        camTrans = Camera.main.transform;
+
+        layerMask = LayerMask.GetMask("InteractiveEnvironment", "Enemies");
     }
 
     private void Update()
@@ -56,6 +64,8 @@ public class GunControl : MonoBehaviour
         if (_gunDown) return;
 
         anim.SetBool("IsAimed", Input.GetButton("Fire2"));
+
+        ammoUI.text = string.Format("{0}/{1}", curMag, totalAmmo);
 
         if(Input.GetButton("Fire1"))
         {
@@ -67,11 +77,13 @@ public class GunControl : MonoBehaviour
                     curMag--;
                     StartCoroutine(MuzzleFlash());
                     RaycastHit hit;
-                    if(Physics.Raycast(muzzleFlash.position, muzzleFlash.forward, out hit, range))
+                    if(Physics.Raycast(camTrans.position, camTrans.forward, out hit, range, layerMask))
                     {
                         GameObject bh = Instantiate(bulletHolePrefab, hit.point, Quaternion.LookRotation(hit.normal, Vector3.up));
                         bh.transform.SetParent(hit.transform, true);
                         bh.GetComponent<BulletHole>().Init(hit.transform.tag, transform.forward);
+
+                        hit.transform.SendMessageUpwards("ApplyDamage", bulletDmg, SendMessageOptions.DontRequireReceiver);
                     }
 
                     //do recoil
@@ -96,7 +108,7 @@ public class GunControl : MonoBehaviour
         recoilPos = Mathf.SmoothDamp(recoilPos, 0, ref recoilVel, recoilRecoverTime);
         body.localPosition = Vector3.back * recoilPos;
 
-        if (Input.GetButtonDown("Reload") && curMag != maxMag)
+        if (Input.GetButtonDown("Reload") && curMag != maxMag && totalAmmo > 0)
             anim.SetTrigger("Reload");
 
     }
@@ -104,8 +116,16 @@ public class GunControl : MonoBehaviour
     void Reload()
     {
         int diff = maxMag - curMag;
-        curMag = maxMag;
-        totalAmmo -= diff;
+        if (totalAmmo >= maxMag)
+        {
+            curMag = maxMag;
+            totalAmmo -= diff;
+        }
+        else
+        {
+            curMag = totalAmmo;
+            totalAmmo = 0;
+        }
         anim.ResetTrigger("Reload");
     }
 

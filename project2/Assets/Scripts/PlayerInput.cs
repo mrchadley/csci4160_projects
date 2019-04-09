@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerInput : MonoBehaviour
@@ -8,6 +9,7 @@ public class PlayerInput : MonoBehaviour
     public GunControl gun;
     private CharacterController cc;
     public Transform camTrans;
+
 
     public float useDistance = 2.0f;
     int intEnvMask;
@@ -21,6 +23,8 @@ public class PlayerInput : MonoBehaviour
     [SerializeField] private float boxMoveForce = 20.0f;
 
     Vector3 moveDir;
+
+    public Text tooltipText;
 
     private void Awake()
     {
@@ -54,12 +58,28 @@ public class PlayerInput : MonoBehaviour
     private void FixedUpdate()
     {
         RaycastHit hit;
-        if (Input.GetButton("Use") && Physics.Raycast(camTrans.position, camTrans.forward, out hit, 2.0f, intEnvMask))
+        bool didHit = Physics.Raycast(camTrans.position, camTrans.forward, out hit, 2.0f, intEnvMask);
+
+        if (didHit && !isJumping)
+        {
+            string ttt = "";
+            if (hit.transform.CompareTag("SlidingBox"))
+                ttt = "Press 'E' to push/pull box.";
+            else if (hit.transform.CompareTag("BoxLift"))
+                ttt = "Press 'E' to use box lift.";
+            else if (hit.transform.CompareTag("Door"))
+                ttt = "Press 'E' to exit this room.";
+
+            tooltipText.text = ttt;
+        }
+        else tooltipText.text = "";
+
+        if (Input.GetButton("Use") && didHit)
         {
             if (hit.collider.CompareTag("SlidingBox"))
             {
                 StopCoroutine(ResetBox());
-                Vector3 forcePoint = hit.point;
+                Vector3 forcePoint = hit.point - (hit.point.y >= hit.transform.position.y ? Vector3.up : Vector3.zero);
                 Rigidbody box = hit.rigidbody;
                 
                 box.AddForceAtPosition(moveDir * boxMoveForce * Time.fixedDeltaTime, forcePoint);
@@ -72,7 +92,7 @@ public class PlayerInput : MonoBehaviour
             isMovingBox = false;
         }
 
-        if (Input.GetButtonDown("Use") && Physics.Raycast(camTrans.position, camTrans.forward, out hit, 2.0f, intEnvMask))
+        if (Input.GetButtonDown("Use") && didHit)
         {
             if (hit.collider.CompareTag("BoxLift"))
             {

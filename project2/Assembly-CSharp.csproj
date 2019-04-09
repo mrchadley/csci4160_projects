@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{B265A822-DF9C-A775-3796-B171204E1511}</ProjectGuid>
+    <ProjectGuid>{1E4ABDF9-CA74-8D88-2BB5-7878F04C3345}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -63,22 +63,25 @@
     <Compile Include="Assets\Scripts\BoxLift.cs" />
     <Compile Include="Assets\Scripts\BulletHole.cs" />
     <Compile Include="Assets\Scripts\GunControl.cs" />
+    <Compile Include="Assets\Scripts\Health.cs" />
     <Compile Include="Assets\Scripts\MouseLook.cs" />
     <Compile Include="Assets\Scripts\PlayerInput.cs" />
+    <Compile Include="Assets\Scripts\UILookAtPlayer.cs" />
+    <Compile Include="Assets\Scripts\ZombotController.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/Project2Idea2/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/csci4160_projects/project2/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.PackageManagerUI.Editor">
-      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/Project2Idea2/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
+      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/csci4160_projects/project2/Library/ScriptAssemblies/Unity.PackageManagerUI.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/Project2Idea2/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/csci4160_projects/project2/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/Project2Idea2/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/csci4160_projects/project2/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/Project2Idea2/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/csci4160_projects/project2/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>D:/Program Files/2018.3.8f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -282,13 +285,13 @@
       <HintPath>D:/Program Files/2018.3.8f1/Editor/Data/UnityExtensions/Unity/UnitySpatialTracking/RuntimeEditor/UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.Editor">
-      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/Project2Idea2/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
+      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/csci4160_projects/project2/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.StandardEvents">
-      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/Project2Idea2/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
+      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/csci4160_projects/project2/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.StandardEvents.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.Tracker">
-      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/Project2Idea2/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
+      <HintPath>D:/Users/marct/Documents/UOIT Course Files/2019-1 Winter/CSCI 4160/csci4160_projects/project2/Library/PackageCache/com.unity.analytics@3.2.2/Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>D:/Program Files/2018.3.8f1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
