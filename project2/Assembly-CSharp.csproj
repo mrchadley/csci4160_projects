@@ -60,12 +60,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\AmmoPickup.cs" />
     <Compile Include="Assets\Scripts\BoxLift.cs" />
     <Compile Include="Assets\Scripts\BulletHole.cs" />
     <Compile Include="Assets\Scripts\GunControl.cs" />
     <Compile Include="Assets\Scripts\Health.cs" />
+    <Compile Include="Assets\Scripts\MainMenu.cs" />
     <Compile Include="Assets\Scripts\MouseLook.cs" />
     <Compile Include="Assets\Scripts\PlayerInput.cs" />
+    <Compile Include="Assets\Scripts\SceneSwitcher.cs" />
     <Compile Include="Assets\Scripts\UILookAtPlayer.cs" />
     <Compile Include="Assets\Scripts\ZombotController.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">

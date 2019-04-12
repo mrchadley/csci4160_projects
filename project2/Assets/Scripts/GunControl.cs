@@ -148,4 +148,9 @@ public class GunControl : MonoBehaviour
 
         } while (t <= 1.0f);
     }
+
+    void PickupAmmo(int rounds)
+    {
+        totalAmmo += rounds;
+    }
 }

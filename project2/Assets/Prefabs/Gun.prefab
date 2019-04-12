@@ -359,8 +359,8 @@ MonoBehaviour:
   totalAmmo: 120
   maxMag: 30
   curMag: 30
-  range: 50
-  bulletDmg: 15
+  range: 20
+  bulletDmg: 5
   anim: {fileID: 704996231}
   body: {fileID: 7068683268906670825}
   rpm: 600

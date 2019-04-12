@@ -38,8 +38,8 @@ public class MouseLook : MonoBehaviour
         }
 
 
-        yRotation -= Input.GetAxis("Mouse X") * mouseSensitivity;
-        xRotation += Input.GetAxis("Mouse Y") * mouseSensitivity;
+        yRotation += Input.GetAxis("Mouse X") * mouseSensitivity;
+        xRotation -= Input.GetAxis("Mouse Y") * mouseSensitivity;
 
         xRotation = Mathf.Clamp(xRotation, -90.0f, 90.0f);
 

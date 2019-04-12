@@ -9,6 +9,8 @@ public class Health : MonoBehaviour
 
     public Slider healthBar;
 
+    bool dead = false;
+
     private void Start()
     {
         healthBar.value = Mathf.Max(0f, health / 100.0f);
@@ -20,8 +22,9 @@ public class Health : MonoBehaviour
 
         healthBar.value = Mathf.Max(0f, health / 100.0f);
 
-        if(health <= 0)
+        if(health <= 0 && !dead)
         {
+            dead = true;
             SendMessage("Die", SendMessageOptions.DontRequireReceiver);
             healthBar.gameObject.SetActive(false);
         }

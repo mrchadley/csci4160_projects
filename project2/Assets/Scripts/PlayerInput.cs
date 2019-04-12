@@ -96,7 +96,11 @@ public class PlayerInput : MonoBehaviour
         {
             if (hit.collider.CompareTag("BoxLift"))
             {
-                hit.collider.GetComponent<BoxLift>().Toggle();
+                hit.collider.BroadcastMessage("Toggle");
+            }
+            else if(hit.collider.CompareTag("Door"))
+            {
+                hit.collider.BroadcastMessage("SwitchScene");
             }
         }
     }

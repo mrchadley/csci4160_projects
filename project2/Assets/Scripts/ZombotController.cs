@@ -22,6 +22,8 @@ public class ZombotController : MonoBehaviour
 
     float attackCounter = 0;
 
+    public GameObject ammoPickup;
+
     private void Start()
     {
         nav = GetComponent<NavMeshAgent>();
@@ -99,8 +101,11 @@ public class ZombotController : MonoBehaviour
     {
         StopAllCoroutines();
         anim.SetTrigger("Dead");
+
+        Instantiate(ammoPickup, transform.position + Vector3.up, transform.rotation);
         
         nav.enabled = false;
         enabled = false;
+
     }
 }
